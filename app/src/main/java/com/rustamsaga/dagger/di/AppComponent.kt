@@ -6,6 +6,7 @@ import com.rustamsaga.dagger.di.modules.NetworkModule
 import com.rustamsaga.dagger.di.modules.StorageModule
 import dagger.Component
 
+// dagger/005 - create @Component - intermediary between the order and the client
 @Component(modules = [StorageModule::class, NetworkModule::class])
 interface AppComponent {
 

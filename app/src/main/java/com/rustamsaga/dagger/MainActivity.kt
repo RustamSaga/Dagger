@@ -17,6 +17,8 @@ import com.rustamsaga.dagger.ui.theme.DaggerTheme
 
 class MainActivity : ComponentActivity() {
 
+    // dagger/007 - giving our objects 
+
     // @Inject
     lateinit var networkUtils: NetworkUtils
     // @Inject
