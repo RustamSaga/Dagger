@@ -3,11 +3,11 @@
 
 
 # Dagger 2- Annotations - [more details here](https://blog.canopas.com/dagger-2-annotation-b3a27d53dabf).
-* [@Inject](https://github.com/RustamSaga/Dagger/blob/master/README.md#inject)
-* [@Module](https://github.com/RustamSaga/Dagger/blob/master/README.md#module)
-* [@Provides](https://github.com/RustamSaga/Dagger/blob/master/README.md#provides)
-* [@Binds](https://github.com/RustamSaga/Dagger/blob/master/README.md#binds)
-* [@Component](https://github.com/RustamSaga/Dagger/blob/master/README.md#component)
+* [@Inject](https://github.com/RustamSaga/Dagger#inject) 
+* [@Module](https://github.com/RustamSaga/Dagger#module)
+* [@Provides](https://github.com/RustamSaga/Dagger#provides)
+* [@Binds](https://github.com/RustamSaga/Dagger#binds)
+* [@Component](https://github.com/RustamSaga/Dagger#component)
 
 ## `@Inject`
 the `@Inject` annotation will tell the Dagger what all the dependencies needed to be transferred to the dependent.
