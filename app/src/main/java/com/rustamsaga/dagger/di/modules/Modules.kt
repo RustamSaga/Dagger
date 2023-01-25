@@ -8,32 +8,17 @@ import com.rustamsaga.dagger.dependencies.Repository
 import dagger.Module
 import dagger.Provides
 
-// dagger/004 - add provide fun for presenter
+// dagger/000 - create LazyModule
 @Module
-class MainModule {
+class LazyModule {
     @Provides
-    fun provideMainActivityPresenter(
-        databaseHelper: DatabaseHelper,
-        networkUtils: NetworkUtils
-    ): MainActivityPresenter {
-        return MainActivityPresenter(databaseHelper, networkUtils)
+    fun provideLazyConnectionManager(): ConnectionManager = ConnectionManager()
+
+    @Provides
+    fun provideRepository(): Repository = Repository()
+
+    @Provides
+    fun provideNetworkUtils(repository: Repository): DatabaseHelper {
+        return DatabaseHelper(Repository())
     }
-}
-
-
-// dagger/003 - add provide fun for NetworkUtils and DatabaseHelper
-@Module
-class NetworkModule {
-    @Provides
-    fun provideNetworkUtils(
-        connectionManager: ConnectionManager
-    ): NetworkUtils = NetworkUtils(connectionManager)
-}
-
-@Module
-class StorageModule {
-    @Provides
-    fun provideStorageHelper(
-        repository: Repository
-    ): DatabaseHelper = DatabaseHelper(repository)
 }

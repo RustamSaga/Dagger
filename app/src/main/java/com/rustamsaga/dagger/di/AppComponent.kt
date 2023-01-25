@@ -1,16 +1,16 @@
 package com.rustamsaga.dagger.di
 
-import com.rustamsaga.dagger.MainActivityPresenter
+import com.rustamsaga.dagger.dependencies.ConnectionManager
 import com.rustamsaga.dagger.dependencies.DatabaseHelper
 import com.rustamsaga.dagger.dependencies.NetworkUtils
-import com.rustamsaga.dagger.di.modules.MainModule
-import com.rustamsaga.dagger.di.modules.NetworkModule
-import com.rustamsaga.dagger.di.modules.StorageModule
+import com.rustamsaga.dagger.di.modules.LazyModule
 import dagger.Component
 
-// dagger/005 - add MainModule in `modules` and create get function for presenter
-@Component(modules = [StorageModule::class, NetworkModule::class, MainModule::class])
+// dagger/001 - Wrap ConnectionManager and DatabaseHelper in Lazy.
+//  (can only use one, this code is only an example for two different dependencies)
+@Component(modules = [LazyModule::class])
 interface AppComponent {
 
-    fun getMainActivityPresenter(): MainActivityPresenter
+    fun getConnectionManager(): dagger.Lazy<ConnectionManager>
+    fun getDatabaseHelper(): dagger.Lazy<DatabaseHelper>
 }
