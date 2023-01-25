@@ -17,22 +17,14 @@ import com.rustamsaga.dagger.ui.theme.DaggerTheme
 
 class MainActivity : ComponentActivity() {
 
-    // dagger/007 - giving our objects 
-
-    // @Inject
-    lateinit var networkUtils: NetworkUtils
-    // @Inject
-    lateinit var databaseHelper: DatabaseHelper
+    // dagger/006 - init presenter
+    lateinit var presenter: MainActivityPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
 
-            networkUtils = (application as App).appComponent.getNetworkUtils()
-            databaseHelper = (application as App).appComponent.getDatabaseHelper()
-
-            // alternative
-            // (application as App).appComponent.injectMainActivity(this)
+            presenter = (application as App).appComponent.getMainActivityPresenter()
 
             DaggerTheme {
                 // A surface container using the 'background' color from the theme
