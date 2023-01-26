@@ -1,16 +1,27 @@
 package com.rustamsaga.dagger.di
 
-import com.rustamsaga.dagger.dependencies.ConnectionManager
-import com.rustamsaga.dagger.dependencies.DatabaseHelper
-import com.rustamsaga.dagger.dependencies.NetworkUtils
-import com.rustamsaga.dagger.di.modules.LazyModule
+import com.rustamsaga.dagger.SecondActivity
+import com.rustamsaga.dagger.ThirdActivity
+import com.rustamsaga.dagger.dependencies.ServerApi
+import com.rustamsaga.dagger.di.modules.NetworkModule
 import dagger.Component
+import javax.inject.Named
 
-// dagger/001 - Wrap ConnectionManager and DatabaseHelper in Lazy.
-//  (can only use one, this code is only an example for two different dependencies)
-@Component(modules = [LazyModule::class])
+// dagger-NAMED/003-1 - add getting function for ServerApi by @Named("...")
+@Component(modules = [NetworkModule::class])
 interface AppComponent {
 
-    fun getConnectionManager(): dagger.Lazy<ConnectionManager>
-    fun getDatabaseHelper(): dagger.Lazy<DatabaseHelper>
+    @Named("admin")
+    fun getServerApiAdmin(): ServerApi
+
+    @Named("client")
+    fun getServerApiClient(): ServerApi
+
+    // dagger-NAMED/003-2 - or we can use it:
+    fun injectSecondActivity(secondActivity: SecondActivity)
+
+    // dagger-QUALIFIER/004 - add inject fun
+    fun injectThirdActivity(thirdActivity: ThirdActivity)
+
+
 }
