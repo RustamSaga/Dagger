@@ -1,27 +1,30 @@
 package com.rustamsaga.dagger.di
 
-import com.rustamsaga.dagger.SecondActivity
-import com.rustamsaga.dagger.ThirdActivity
-import com.rustamsaga.dagger.dependencies.ServerApi
-import com.rustamsaga.dagger.di.modules.NetworkModule
-import dagger.Component
-import javax.inject.Named
 
-// dagger-NAMED/003-1 - add getting function for ServerApi by @Named("...")
-@Component(modules = [NetworkModule::class])
+import com.rustamsaga.dagger.MainActivity
+import com.rustamsaga.dagger.SecondActivity
+import com.rustamsaga.dagger.TestElementsIntoSet
+import com.rustamsaga.dagger.TestIntoMap
+import com.rustamsaga.dagger.di.modules.ElementsIntoSetModule
+import com.rustamsaga.dagger.di.modules.IntoMapModule
+import com.rustamsaga.dagger.di.modules.SetModule
+import dagger.Component
+
+
+// dagger-IntoSet-ElementsIntoSet-IntoMap/004 - add fun for giving set<EventHandler>
+@Component(modules = [
+    SetModule::class,
+    ElementsIntoSetModule::class,
+    IntoMapModule::class
+])
 interface AppComponent {
 
-    @Named("admin")
-    fun getServerApiAdmin(): ServerApi
+    val testElementsIntoSet: TestElementsIntoSet
 
-    @Named("client")
-    fun getServerApiClient(): ServerApi
+    fun injectMainActivity(mainActivity: MainActivity)
 
-    // dagger-NAMED/003-2 - or we can use it:
+    val testIntoMap: TestIntoMap
+
     fun injectSecondActivity(secondActivity: SecondActivity)
-
-    // dagger-QUALIFIER/004 - add inject fun
-    fun injectThirdActivity(thirdActivity: ThirdActivity)
-
 
 }

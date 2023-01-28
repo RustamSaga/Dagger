@@ -1,38 +1,59 @@
 package com.rustamsaga.dagger.di.modules
 
-import com.rustamsaga.dagger.dependencies.Admin
-import com.rustamsaga.dagger.dependencies.Client
-import com.rustamsaga.dagger.dependencies.LocalServer
-import com.rustamsaga.dagger.dependencies.ServerApi
+import com.rustamsaga.dagger.*
 import dagger.Module
 import dagger.Provides
-import javax.inject.Named
+import dagger.multibindings.ElementsIntoSet
+import dagger.multibindings.IntoMap
+import dagger.multibindings.IntoSet
+import dagger.multibindings.StringKey
 
-// dagger-NAMED/002 - Create two different ServerApi (admin and client) in the module
-//  also we need to add 2 annotation @Named - one for admin second for client
+// dagger-IntoSet-ElementsIntoSet/003
+//  - add @IntoSet or/and @ElementsIntoSet for giving AnalyticsTracker implementations
 @Module
-class NetworkModule {
+class SetModule {
 
-    @Named("admin")
+    @IntoSet
     @Provides
-    fun provideServerApiAdmin(): ServerApi = ServerApi("admin.server.com")
+    fun provideAnalytics(): AnalyticsTracker{
+        return TelegramAnalytic()
+    }
 
-    @Named("client")
+    @IntoSet
     @Provides
-    fun provideServerApiClient(): ServerApi = ServerApi("client.server.com")
+    fun provideLoggers(): AnalyticsTracker{
+        return Logger()
+    }
+}
 
 
-    // dagger-QUALIFIER/003 - create provider functions by your annotations (@Admin and @Client)
-    @Admin
+@Module
+class ElementsIntoSetModule{
+
     @Provides
-    fun provideLocalServerAdmin(): LocalServer = LocalServer("admin-001")
+    @ElementsIntoSet
+    fun provideDatabaseEventHelpers(
+        databaseAnalytic: DatabaseAnalytic,
+        facebookAnalytic: FacebookAnalytic,
+        firebaseAnalytic: FirebaseAnalytic
+    ): Set<AnalyticsTracker>{
+        return setOf(databaseAnalytic, facebookAnalytic, firebaseAnalytic)
+    }
+}
 
-    @Client("001")
+// dagger-IntoMap/003 - add @IntoMap in provide functions for giving AnalyticsTracker implementations
+@Module
+class IntoMapModule{
+
+    @IntoMap
+    @StringKey("telegram")
     @Provides
-    fun provideLocalServerClient001(): LocalServer = LocalServer("client/001")
+    fun provideTelegramAnalytics(): AnalyticsTracker {
+        return TelegramAnalytic()
+    }
 
-    @Client("002")
+    @IntoMap
+    @StringKey("logger")
     @Provides
-    fun provideLocalServerClient002(): LocalServer = LocalServer("client/002")
-
+    fun provideLogger(): AnalyticsTracker = Logger()
 }

@@ -4,6 +4,7 @@ import android.app.Application
 import com.rustamsaga.dagger.di.AppComponent
 import com.rustamsaga.dagger.di.DaggerAppComponent
 
+
 class App: Application() {
     lateinit var appComponent: AppComponent
 
