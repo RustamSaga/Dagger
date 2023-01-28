@@ -42,18 +42,19 @@ class ElementsIntoSetModule{
 }
 
 // dagger-IntoMap/003 - add @IntoMap in provide functions for giving AnalyticsTracker implementations
+//  in this example we use custom annotation instead of @StringKey("...")
 @Module
 class IntoMapModule{
 
     @IntoMap
-    @StringKey("telegram")
+    @EventKey(EventType.TELEGRAM) //  @StringKey("telegram")
     @Provides
     fun provideTelegramAnalytics(): AnalyticsTracker {
         return TelegramAnalytic()
     }
 
     @IntoMap
-    @StringKey("logger")
+    @EventKey(EventType.LOGGER) // @StringKey("logger")
     @Provides
     fun provideLogger(): AnalyticsTracker = Logger()
 }

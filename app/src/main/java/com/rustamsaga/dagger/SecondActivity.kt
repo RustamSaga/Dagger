@@ -14,7 +14,7 @@ class SecondActivity : ComponentActivity() {
 
     // dagger-IntoMap/005 - create field Map<String, @JvmSuppressWildcards AnalyticsTracker>
     @Inject
-    lateinit var mapAnalyticsTracker: Map<String, @JvmSuppressWildcards AnalyticsTracker>
+    lateinit var mapAnalyticsTracker: Map<EventType, @JvmSuppressWildcards AnalyticsTracker>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

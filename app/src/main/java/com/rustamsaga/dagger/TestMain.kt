@@ -13,10 +13,10 @@ fun main() {
 
     println("\nTest @IntoMap.")
     appComponent.testIntoMap.getTestIntoMap(
-        "telegram", AnalyticsTracker.Event.Open
+        EventType.TELEGRAM, AnalyticsTracker.Event.Open
     )
     appComponent.testIntoMap.getTestIntoMap(
-        "logger", AnalyticsTracker.Event.Close
+        EventType.LOGGER, AnalyticsTracker.Event.Close
     )
 }
 
@@ -32,9 +32,9 @@ class TestElementsIntoSet @Inject constructor(
 }
 
 class TestIntoMap @Inject constructor(
-    private val mapAnalytics: Map<String, @JvmSuppressWildcards AnalyticsTracker>
+    private val mapAnalytics: Map<EventType, @JvmSuppressWildcards AnalyticsTracker>
 ) {
-    fun getTestIntoMap(key: String, event: AnalyticsTracker.Event) {
+    fun getTestIntoMap(key: EventType, event: AnalyticsTracker.Event) {
         mapAnalytics.forEach { mapAnalytic ->
             if (mapAnalytic.key == key)
                 mapAnalytic.value.trackEvent(event)
