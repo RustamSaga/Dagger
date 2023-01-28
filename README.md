@@ -3,107 +3,118 @@
 For ease of use, I added TODO filter. To follow links you need to create filters -
  click to `TODO` in bottom panel -> icon filter ![image](https://user-images.githubusercontent.com/121166010/214673108-b36497d7-85a4-4086-8beb-c6e8dbe297ad.png) -> Edit Filters -> add pattern `\bdagger\b.*` and filter `dagger` 
 
-## `@Named` 
-Sometimes we need to create several objects of the same class, but with different inputs.
+
+#### If we need to get multiple similar objects we use annotations: @IntoSet, @ElementsIntoSet, @IntoMap
+
+## `@IntoSet` 
+
+#### Objects for provide
+```
+interface AnalyticsTracker {
+    fun trackEvent(event: Event){
+        println("$this: ${event.name}")
+    }
+
+    sealed class Event(val name: String) {
+        object Open: Event("open")
+        object Close: Event("close")
+    }
+}
+
+
+class TelegramAnalytic @Inject constructor(): AnalyticsTracker {
+
+    override fun toString() = "Analytic"
+
+}
+
+class Logger @Inject constructor(): AnalyticsTracker {
+
+    override fun toString() = "Logger"
+}
+
+// ...
+```
 
 #### Module
 ```
-    @Named("admin")
-    @Provides
-    fun provideServerApiAdmin(): ServerApi = ServerApi("admin.server.com")
+     @IntoSet
+     @Provides
+     fun provideAnalytics(): AnalyticsTracker{
+         return TelegramAnalytic()
+     }
 
-    @Named("client")
-    @Provides
-    fun provideServerApiClient(): ServerApi = ServerApi("client.server.com")
+     @IntoSet
+     @Provides
+     fun provideLoggers(): AnalyticsTracker{
+        return Logger()
+     }
+}
 ```
 
 #### Component
 ```
    fun injectActivity(activity: Activity)
 ```
-or 
-```
-    @Named("admin")
-    fun getServerApiAdmin(): ServerApi
-
-    @Named("client")
-    fun getServerApiClient(): ServerApi
-```
 
 #### Activity
 ```
-
-// if use "fun injectActivity(activity: Activity)" in @Component you need add these annotations
     @Inject
-    @Named("admin")
-    lateinit var serverApiAdmin: ServerApi 
-
-    @Inject
-    @Named("client")
-    lateinit var serverApiClient: ServerApi
-   
+    lateinit var eventSet: Set<@JvmSuppressWildcards AnalyticsTracker>
+    
+     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            (application as App).appComponent.injectActivity(this)
+        //... 
+        }
 ```
 
-## `@Qualifier`
+## `@ElementsIntoSet`
 
-#### Creating and using your annotations
-```
-    @Qualifier
-    @Retention(AnnotationRetention.RUNTIME)
-    annotation class Admin
- 
-    @Qualifier
-    @Retention(AnnotationRetention.RUNTIME)
-    annotation class Client(val value: String = "")
-```
-
+// all the same as intoSet except @Module
 #### Module
 ```
-    @Admin
     @Provides
-    fun provideLocalServerAdmin(): LocalServer = LocalServer("admin-001")
+    @ElementsIntoSet
+    fun provideDatabaseEventHelpers(
+        databaseAnalytic: DatabaseAnalytic,
+        facebookAnalytic: FacebookAnalytic,
+        firebaseAnalytic: FirebaseAnalytic
+    ): Set<AnalyticsTracker>{
+        return setOf(databaseAnalytic, facebookAnalytic, firebaseAnalytic)
+    }
+}
+```
 
-    @Client("001")
+## `IntoMap`
+
+#### `Module`
+```
+    @IntoMap
+    @EventKey(EventType.TELEGRAM) // custom annotation or @StringKey("telegram")
     @Provides
-    fun provideLocalServerClient001(): LocalServer = LocalServer("client/001")
+    fun provideTelegramAnalytics(): AnalyticsTracker {
+        return TelegramAnalytic()
+    }
 
-    @Client("002")
+    @IntoMap
+    @EventKey(EventType.LOGGER) // custom annotation or @StringKey("logger")
     @Provides
-    fun provideLocalServerClient002(): LocalServer = LocalServer("client/002")
+    fun provideLogger(): AnalyticsTracker = Logger()
 ```
 
-#### Component
-
+#### `Acivity`
 ```
-   fun injectActivity(activity: Activity)
-```
-or
-```   
-   @Admin
-   fun getLocalServerAdmin(): LocalServer("admin")
-   
-   @Client("001")
-   fun getLocalServerClient001(): LocalServer("client/001")
-   
-   @Client("002")
-   fun getLocalServerClient002(): LocalServer("client/002")
-```
-
-
-#### Activity
-
-```
-
-// if use "fun injectActivity(activity: Activity)" in @Component you need add these annotations
     @Inject
-    @Admin
-    lateinit var localServerAdmin: LocalServer
-
-    @Inject
-    @Client("001")
-    lateinit var localServerClient001: LocalServer
-
-    @Inject
-    @Client("002")
-    lateinit var localServerClient002: LocalServer
+    lateinit var mapAnalyticsTracker: Map<EventType, @JvmSuppressWildcards AnalyticsTracker>
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {    
+            (application as App).appComponent.injectActivity(this)
+            //...
+        }
+        //...
 ```
+
