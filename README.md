@@ -1,120 +1,107 @@
-# Dagger mini-tutorial
+# Annotation @Inject
 
 For ease of use, I added TODO filter. To follow links you need to create filters -
  click to `TODO` in bottom panel -> icon filter ![image](https://user-images.githubusercontent.com/121166010/214673108-b36497d7-85a4-4086-8beb-c6e8dbe297ad.png) -> Edit Filters -> add pattern `\bdagger\b.*` and filter `dagger` 
 
 
-#### If we need to get multiple similar objects we use annotations: [@IntoSet](https://github.com/RustamSaga/Dagger/blob/dagger/003-additional_features/set_and_map/README.md#intoset), [@ElementsIntoSet](https://github.com/RustamSaga/Dagger/blob/dagger/003-additional_features/set_and_map/README.md#elementsintoset), [@IntoMap](https://github.com/RustamSaga/Dagger/blob/dagger/003-additional_features/set_and_map/README.md#intomap)
+#### We used this annotation, but it can be used with the object constructor and _`its`_ methods.
 
-## `@IntoSet` 
 
-#### Objects for provide
+## Dependency Class Creation
 ```
-interface AnalyticsTracker {
-    fun trackEvent(event: Event){
-        println("$this: ${event.name}")
+// Not added to @Module
+class MainActivityPresenter @Inject constructor(
+    private val localDatabase: LocalDatabase,
+    @Named("dev") val serverDev: Server,
+    @Named("client") val serverClient: Server
+) {
+    // ...
+    override fun toString(): String {
+        return "Presenter: $localDatabase, $serverDev, $serverClient"
     }
 
-    sealed class Event(val name: String) {
-        object Open: Event("open")
-        object Close: Event("close")
-    }
-}
-
-
-class TelegramAnalytic @Inject constructor(): AnalyticsTracker {
-
-    override fun toString() = "Analytic"
-
-}
-
-class Logger @Inject constructor(): AnalyticsTracker {
-
-    override fun toString() = "Logger"
-}
-
-// ...
-```
-
-#### Module
-```
-     @IntoSet
-     @Provides
-     fun provideAnalytics(): AnalyticsTracker{
-         return TelegramAnalytic()
-     }
-
-     @IntoSet
-     @Provides
-     fun provideLoggers(): AnalyticsTracker{
-        return Logger()
-     }
-}
-```
-
-#### Component
-```
-   fun injectActivity(activity: Activity)
-```
-
-#### Activity
-```
+    // When the dagger2 creates this class (MainActivityPresenter),
+    // it will call postInit immediately after creation.
     @Inject
-    lateinit var eventSet: Set<@JvmSuppressWildcards AnalyticsTracker>
-    
-     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            (application as App).appComponent.injectActivity(this)
-        //... 
-        }
-```
-
-## `@ElementsIntoSet`
-
-// all the same as intoSet except @Module
-#### Module
-```
-    @Provides
-    @ElementsIntoSet
-    fun provideDatabaseEventHelpers(
-        databaseAnalytic: DatabaseAnalytic,
-        facebookAnalytic: FacebookAnalytic,
-        firebaseAnalytic: FirebaseAnalytic
-    ): Set<AnalyticsTracker>{
-        return setOf(databaseAnalytic, facebookAnalytic, firebaseAnalytic)
+    fun postInit(networkUtils: NetworkUtils){
+        // ...
     }
 }
 ```
 
-## `IntoMap`
-
-#### `Module`
 ```
-    @IntoMap
-    @EventKey(EventType.TELEGRAM) // custom annotation or @StringKey("telegram")
+// Not added to @Module
+class NetworkUtils @Inject constructor() {
+    override fun toString(): String = "NetworkUtils"
+}
+```
+
+```
+// Not added to @Module
+class LocalDatabase @Inject constructor() {
+    override fun toString(): String = "LocalDatabase"
+}
+```
+
+```
+class Server(private val route: String) {
+    override fun toString(): String = route
+}
+
+```
+
+## Module
+```
+@Module
+class MainModule {
+
     @Provides
-    fun provideTelegramAnalytics(): AnalyticsTracker {
-        return TelegramAnalytic()
+    @Named("dev")
+    fun provideServerDev(): Server {
+        return Server("dev.server.com")
     }
 
-    @IntoMap
-    @EventKey(EventType.LOGGER) // custom annotation or @StringKey("logger")
     @Provides
-    fun provideLogger(): AnalyticsTracker = Logger()
+    @Named("client")
+    fun provideServerClient(): Server {
+        return Server("client.server.com")
+    }
+
+}
 ```
 
-#### `Acivity`
+## Component
 ```
-    @Inject
-    lateinit var mapAnalyticsTracker: Map<EventType, @JvmSuppressWildcards AnalyticsTracker>
-    
+@Component(modules = [MainModule::class])
+interface AppComponent {
+
+    fun getMainActivityPresenter(): MainActivityPresenter
+
+    fun getNetworkUtils(): NetworkUtils
+}
+```
+
+## MainActivity
+```
+
+class MainActivity : ComponentActivity() {
+    lateinit var presenter: MainActivityPresenter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {    
-            (application as App).appComponent.injectActivity(this)
-            //...
-        }
-        //...
+        setContent {
+            presenter = (application as App).appComponent.getMainActivityPresenter()
+            // ...
+    }
+
+    // dagger-Annotation Inject/003
+    // When the dagger2 creates this (MainActivityPresenter,
+    // it will call postInit immediately after creation.
+    @Inject
+    fun postInit(networkUtils: NetworkUtils) {
+        // ...
+    }
+}
 ```
+
 
