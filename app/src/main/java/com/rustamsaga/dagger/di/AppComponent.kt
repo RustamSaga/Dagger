@@ -2,29 +2,16 @@ package com.rustamsaga.dagger.di
 
 
 import com.rustamsaga.dagger.MainActivity
-import com.rustamsaga.dagger.SecondActivity
-import com.rustamsaga.dagger.TestElementsIntoSet
-import com.rustamsaga.dagger.TestIntoMap
-import com.rustamsaga.dagger.di.modules.ElementsIntoSetModule
-import com.rustamsaga.dagger.di.modules.IntoMapModule
-import com.rustamsaga.dagger.di.modules.SetModule
+import com.rustamsaga.dagger.MainActivityPresenter
+import com.rustamsaga.dagger.NetworkUtils
 import dagger.Component
 
 
-// dagger-IntoSet-ElementsIntoSet-IntoMap/004 - add fun for giving set<EventHandler>
-@Component(modules = [
-    SetModule::class,
-    ElementsIntoSetModule::class,
-    IntoMapModule::class
-])
+// dagger-Annotation Inject/002 - get Presenter without module class
+@Component(modules = [MainModule::class])
 interface AppComponent {
 
-    val testElementsIntoSet: TestElementsIntoSet
+    fun getMainActivityPresenter(): MainActivityPresenter
 
-    fun injectMainActivity(mainActivity: MainActivity)
-
-    val testIntoMap: TestIntoMap
-
-    fun injectSecondActivity(secondActivity: SecondActivity)
-
+    fun getNetworkUtils(): NetworkUtils
 }
