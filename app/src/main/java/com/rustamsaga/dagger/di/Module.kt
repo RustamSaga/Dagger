@@ -1,24 +1,38 @@
 package com.rustamsaga.dagger.di
 
-import com.rustamsaga.dagger.Server
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
+import android.content.res.Resources
+import com.rustamsaga.dagger.MainActivityPresenter
 import dagger.Module
 import dagger.Provides
-import javax.inject.Named
 
+// dagger-passing object to the component/002 - create module with param context
+@Module
+class AppModule(private val context: Context) {
 
+    @Provides
+    fun provideContext(): Context {
+        return context
+    }
+
+    @Provides
+    fun providePreferences(): SharedPreferences {
+        return context.getSharedPreferences("pref", MODE_PRIVATE)
+    }
+
+    @Provides
+    fun provideResources(): Resources {
+        return context.resources
+    }
+}
+
+// dagger-passing object to the component/002 - create another module
 @Module
 class MainModule {
-
     @Provides
-    @Named("dev")
-    fun provideServerDev(): Server {
-        return Server("dev.server.com")
+    fun provideMainActivityPresenter(context: Context): MainActivityPresenter {
+        return MainActivityPresenter(context = context)
     }
-
-    @Provides
-    @Named("client")
-    fun provideServerClient(): Server {
-        return Server("client.server.com")
-    }
-
 }

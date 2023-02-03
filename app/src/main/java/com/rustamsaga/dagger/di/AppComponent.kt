@@ -1,17 +1,18 @@
 package com.rustamsaga.dagger.di
 
 
-import com.rustamsaga.dagger.MainActivity
+import android.content.SharedPreferences
+import android.content.res.Resources
 import com.rustamsaga.dagger.MainActivityPresenter
-import com.rustamsaga.dagger.NetworkUtils
 import dagger.Component
 
 
-// dagger-Annotation Inject/002 - get Presenter without module class
-@Component(modules = [MainModule::class])
+// dagger-passing object to the component/003 - create Component
+@Component(modules = [AppModule::class, MainModule::class])
 interface AppComponent {
 
-    fun getMainActivityPresenter(): MainActivityPresenter
+    fun getPref(): SharedPreferences
+    fun getResources(): Resources
 
-    fun getNetworkUtils(): NetworkUtils
+    fun getMainActivityPresenter(): MainActivityPresenter
 }

@@ -12,8 +12,7 @@ import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
 
-    // dagger-Annotation Inject/003
-
+    // dagger-passing object to the component/005 - regular process
     lateinit var presenter: MainActivityPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,13 +31,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    // dagger-Annotation Inject/003
-    // When the dagger2 creates this (MainActivityPresenter,
-    // it will call postInit immediately after creation.
-    @Inject
-    fun postInit(networkUtils: NetworkUtils) {
-        // ...
     }
 }
