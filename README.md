@@ -1,61 +1,89 @@
-# Passing object to the component
+# Builder and Factory
 
-For ease of use, I added TODO filter. To follow links you need to create filters -
- click to `TODO` in bottom panel -> icon filter ![image](https://user-images.githubusercontent.com/121166010/214673108-b36497d7-85a4-4086-8beb-c6e8dbe297ad.png) -> Edit Filters -> add pattern `\bdagger\b.*` and filter `dagger` 
+For ease of use, I added TODO filter. To follow links you need to create filters - click to `TODO`
+in bottom panel -> icon
+filter ![image](https://user-images.githubusercontent.com/121166010/214673108-b36497d7-85a4-4086-8beb-c6e8dbe297ad.png)
+-> Edit Filters -> add pattern `\bdagger\b.*` and filter `dagger`
 
-## To use some object to which dagger doesn't have an access we need:
-1. create module and put in constructor some object
-```
-@Module
-class AppModule(private val context: Context) {
-    //...
-}
-```
+#### Customization of the Component using a builder or factory.
 
-2. put the object in the graph (with @Provides)
-```
-@Module
-class AppModule(private val context: Context) {
+## Builder
 
-    @Provides
-    fun provideContext(): Context {
-        return context
-    }
-    
-    //...
-}
-```
-
-3. add module in component
-```
-@Component(modules = [AppModule::class, ...])
+1. To avoid calling the context in the module (AppModule) - this way better than passing context in the module constructor.
+```kotlin
+@Component(modules = [AppModule::class])
 interface AppComponent {
-// ...
+
+    // ...
+
+    @Component.Builder
+    interface AppCompBuilder {
+        fun buildAppComp(): AppComponent  // must have
+        
+        @BindsInstance  
+        fun context(context: Context): AppCompBuilder
+    }
 }
 ```
 
-4. create AppComponent by use Builder directly to put in the Module some object, to which dagger2 doesn't have an access 
-```
-class App: Application() {
+2. init Component
+
+```kotlin
+class App : Application() {
     lateinit var appComponent: AppComponent
 
     override fun onCreate() {
         super.onCreate()
         appComponent = DaggerAppComponent
             .builder()
-            .appModule(AppModule(this))
-            .build()
+            .context(this)
+            .buildAppComp() // getting AppComponent
     }
 }
+
 ```
-#### And then dagger can use this object (context) to create other objects, even if they are created in other modules:
-```
+3. context takes from our custom builder
+```kotlin
 @Module
-class MainModule {
+class AppModule {
+ 
     @Provides
-    fun provideMainActivityPresenter(context: Context): MainActivityPresenter {
-        return MainActivityPresenter(context = context)
+    fun providePreferences(context: Context): SharedPreferences {
+        return context.getSharedPreferences("pref", MODE_PRIVATE)
+    }
+
+    @Provides
+    fun provideResources(context: Context): Resources {
+        return context.resources
     }
 }
 ```
 
+## Factory
+Instead of Builder with multiple methods, we can use one method with multiple arguments.
+1.
+```kotlin
+@Component(modules = [AppModule::class])
+interface AppComponent {
+    // ...
+
+    @Component.Factory
+    interface AppCompFactory {
+        fun create(@BindsInstance context: Context, appModule: AppModule): AppComponent
+    }
+}
+```
+2. init Component
+```kotlin
+class App: Application() {
+    lateinit var appComponent: AppComponent
+
+    override fun onCreate() {
+        super.onCreate()
+        
+        appComponent = DaggerAppComponent
+            .factory()
+            .create(this, AppModule())
+    }
+}
+```

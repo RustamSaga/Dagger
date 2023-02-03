@@ -12,15 +12,9 @@ import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
 
-    // dagger-passing object to the component/005 - regular process
-    lateinit var presenter: MainActivityPresenter
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-
-            presenter = (application as App).appComponent.getMainActivityPresenter()
-
             DaggerTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
