@@ -5,7 +5,7 @@ For ease of use, I added TODO filter. To follow links you need to create filters
 
 ## To use some object to which dagger doesn't have an access we need:
 1. create module and put in constructor some object
-```
+```kotlin
 @Module
 class AppModule(private val context: Context) {
     //...
@@ -13,7 +13,7 @@ class AppModule(private val context: Context) {
 ```
 
 2. put the object in the graph (with @Provides)
-```
+```kotlin
 @Module
 class AppModule(private val context: Context) {
 
@@ -27,7 +27,7 @@ class AppModule(private val context: Context) {
 ```
 
 3. add module in component
-```
+```kotlin
 @Component(modules = [AppModule::class, ...])
 interface AppComponent {
 // ...
@@ -35,7 +35,7 @@ interface AppComponent {
 ```
 
 4. create AppComponent by use Builder directly to put in the Module some object, to which dagger2 doesn't have an access 
-```
+```kotlin
 class App: Application() {
     lateinit var appComponent: AppComponent
 
@@ -49,7 +49,7 @@ class App: Application() {
 }
 ```
 #### And then dagger can use this object (context) to create other objects, even if they are created in other modules:
-```
+```kotlin
 @Module
 class MainModule {
     @Provides
