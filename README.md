@@ -8,7 +8,7 @@ For ease of use, I added TODO filter. To follow links you need to create filters
 
 
 ## Dependency Class Creation
-```
+```kotlin
 // Not added to @Module
 class MainActivityPresenter @Inject constructor(
     private val localDatabase: LocalDatabase,
@@ -29,21 +29,21 @@ class MainActivityPresenter @Inject constructor(
 }
 ```
 
-```
+```kotlin
 // Not added to @Module
 class NetworkUtils @Inject constructor() {
     override fun toString(): String = "NetworkUtils"
 }
 ```
 
-```
+```kotlin
 // Not added to @Module
 class LocalDatabase @Inject constructor() {
     override fun toString(): String = "LocalDatabase"
 }
 ```
 
-```
+```kotlin
 class Server(private val route: String) {
     override fun toString(): String = route
 }
@@ -51,7 +51,7 @@ class Server(private val route: String) {
 ```
 
 ## Module
-```
+```kotlin
 @Module
 class MainModule {
 
@@ -71,7 +71,7 @@ class MainModule {
 ```
 
 ## Component
-```
+```kotlin
 @Component(modules = [MainModule::class])
 interface AppComponent {
 
@@ -82,8 +82,7 @@ interface AppComponent {
 ```
 
 ## MainActivity
-```
-
+```kotlin
 class MainActivity : ComponentActivity() {
     lateinit var presenter: MainActivityPresenter
 
