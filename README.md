@@ -7,7 +7,7 @@ For ease of use, I added TODO filter. To follow links you need to create filters
 Sometimes we need to create several objects of the same class, but with different inputs.
 
 #### Module
-```
+```kotlin
     @Named("admin")
     @Provides
     fun provideServerApiAdmin(): ServerApi = ServerApi("admin.server.com")
@@ -18,11 +18,11 @@ Sometimes we need to create several objects of the same class, but with differen
 ```
 
 #### Component
-```
+```kotlin
    fun injectActivity(activity: Activity)
 ```
 or 
-```
+```kotlin
     @Named("admin")
     fun getServerApiAdmin(): ServerApi
 
@@ -31,7 +31,7 @@ or
 ```
 
 #### Activity
-```
+```kotlin
 
 // if use "fun injectActivity(activity: Activity)" in @Component you need add these annotations
     @Inject
@@ -47,7 +47,7 @@ or
 ## `@Qualifier`
 
 #### Creating and using your annotations
-```
+```kotlin
     @Qualifier
     @Retention(AnnotationRetention.RUNTIME)
     annotation class Admin
@@ -58,7 +58,7 @@ or
 ```
 
 #### Module
-```
+```kotlin
     @Admin
     @Provides
     fun provideLocalServerAdmin(): LocalServer = LocalServer("admin-001")
@@ -74,11 +74,11 @@ or
 
 #### Component
 
-```
+```kotlin
    fun injectActivity(activity: Activity)
 ```
 or
-```   
+```kotlin
    @Admin
    fun getLocalServerAdmin(): LocalServer("admin")
    
@@ -92,7 +92,7 @@ or
 
 #### Activity
 
-```
+```kotlin
 
 // if use "fun injectActivity(activity: Activity)" in @Component you need add these annotations
     @Inject
