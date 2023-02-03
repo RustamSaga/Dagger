@@ -9,7 +9,7 @@ For ease of use, I added TODO filter. To follow links you need to create filters
 ## `@IntoSet` 
 
 #### Objects for provide
-```
+```kotlin
 interface AnalyticsTracker {
     fun trackEvent(event: Event){
         println("$this: ${event.name}")
@@ -37,7 +37,7 @@ class Logger @Inject constructor(): AnalyticsTracker {
 ```
 
 #### Module
-```
+```kotlin
      @IntoSet
      @Provides
      fun provideAnalytics(): AnalyticsTracker{
@@ -53,12 +53,12 @@ class Logger @Inject constructor(): AnalyticsTracker {
 ```
 
 #### Component
-```
+```kotlin
    fun injectActivity(activity: Activity)
 ```
 
 #### Activity
-```
+```kotlin
     @Inject
     lateinit var eventSet: Set<@JvmSuppressWildcards AnalyticsTracker>
     
@@ -74,7 +74,7 @@ class Logger @Inject constructor(): AnalyticsTracker {
 
 // all the same as intoSet except @Module
 #### Module
-```
+```kotlin
     @Provides
     @ElementsIntoSet
     fun provideDatabaseEventHelpers(
@@ -90,7 +90,7 @@ class Logger @Inject constructor(): AnalyticsTracker {
 ## `IntoMap`
 
 #### `Module`
-```
+```kotlin
     @IntoMap
     @EventKey(EventType.TELEGRAM) // custom annotation or @StringKey("telegram")
     @Provides
@@ -105,7 +105,7 @@ class Logger @Inject constructor(): AnalyticsTracker {
 ```
 
 #### `Acivity`
-```
+```kotlin
     @Inject
     lateinit var mapAnalyticsTracker: Map<EventType, @JvmSuppressWildcards AnalyticsTracker>
     
