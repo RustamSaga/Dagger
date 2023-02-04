@@ -1,89 +1,93 @@
-# Builder and Factory
+# Subcomponent
 
 For ease of use, I added TODO filter. To follow links you need to create filters - click to `TODO`
 in bottom panel -> icon
 filter ![image](https://user-images.githubusercontent.com/121166010/214673108-b36497d7-85a4-4086-8beb-c6e8dbe297ad.png)
 -> Edit Filters -> add pattern `\bdagger\b.*` and filter `dagger`
 
-#### Customization of the Component using a builder or factory.
+#### Subcomponents allow to divide the functionality of the component into several parts.
 
-## Builder
+#### Benefits.
 
-1. To avoid calling the context in the module (AppModule) - this way better than passing context in the module constructor.
+1. The logical division of functions. Different components - different responsibilities.
+
+2. More flexible transfer of objects into components.
+
+3. More flexible lifetime of objects returned by components
+
+## First benefit example
+
+### Objects
 ```kotlin
-@Component(modules = [AppModule::class])
+class MainActivityPresenter(
+    val databaseHelper: DatabaseHelper,
+    val networkUtils: NetworkUtils
+) {}
+
+class DatabaseHelper @Inject constructor() {
+    fun showMessage(message: String): String {
+        return "DatabaseHelper: $message"
+    }   
+}   
+
+class NetworkUtils @Inject constructor() {
+    fun showMessage(message: String): String {
+        return "NetworkHelper: $message"
+    }
+}
+```
+
+### Module
+```kotlin
+class MainModule {
+    @Provides
+    fun provideMainActivityPresenter(databaseHelper: DatabaseHelper, networkUtils: NetworkUtils): MainActivityPresenter {
+        return MainActivityPresenter(databaseHelper, networkUtils)
+    }
+}
+```
+
+### Base component
+```kotlin
+@Component
 interface AppComponent {
 
-    // ...
+    fun getNetworkUtils(): NetworkUtils
+    fun getDatabaseHelper(): DatabaseHelper
 
-    @Component.Builder
-    interface AppCompBuilder {
-        fun buildAppComp(): AppComponent  // must have
-        
-        @BindsInstance  
-        fun context(context: Context): AppCompBuilder
-    }
+    fun getSecondComponent(): SecondComponent
 }
 ```
 
-2. init Component
-
+### Subcomponent
 ```kotlin
-class App : Application() {
-    lateinit var appComponent: AppComponent
+@Subcomponent(modules = [MainModule::class])
+interface SecondComponent {
 
-    override fun onCreate() {
-        super.onCreate()
-        appComponent = DaggerAppComponent
-            .builder()
-            .context(this)
-            .buildAppComp() // getting AppComponent
-    }
-}
+    fun getMainActivityPresenter(): MainActivityPresenter
 
-```
-3. context takes from our custom builder
-```kotlin
-@Module
-class AppModule {
- 
-    @Provides
-    fun providePreferences(context: Context): SharedPreferences {
-        return context.getSharedPreferences("pref", MODE_PRIVATE)
-    }
-
-    @Provides
-    fun provideResources(context: Context): Resources {
-        return context.resources
-    }
 }
 ```
 
-## Factory
-Instead of Builder with multiple methods, we can use one method with multiple arguments.
-1.
+### Test 
 ```kotlin
-@Component(modules = [AppModule::class])
-interface AppComponent {
-    // ...
+fun main() {
 
-    @Component.Factory
-    interface AppCompFactory {
-        fun create(@BindsInstance context: Context, appModule: AppModule): AppComponent
-    }
+    val appComponent = DaggerAppComponent.create()
+
+    println(appComponent.getDatabaseHelper().showMessage("main function"))
+    println(appComponent.getNetworkUtils().showMessage("main function"))
+
+    presenterMessages(appComponent.getSecondComponent())
 }
-```
-2. init Component
-```kotlin
-class App: Application() {
-    lateinit var appComponent: AppComponent
 
-    override fun onCreate() {
-        super.onCreate()
-        
-        appComponent = DaggerAppComponent
-            .factory()
-            .create(this, AppModule())
-    }
+
+fun presenterMessages(subcomponent: SecondComponent) {
+
+    val presenter = subcomponent.getMainActivityPresenter()
+
+    println(presenter.databaseHelper.showMessage("from presenter"))
+    println(presenter.networkUtils.showMessage("from presenter"))
+
 }
 ```

@@ -4,21 +4,18 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.content.res.Resources
+import com.rustamsaga.dagger.DatabaseHelper
+import com.rustamsaga.dagger.MainActivityPresenter
+import com.rustamsaga.dagger.NetworkUtils
 import dagger.Module
 import dagger.Provides
 
+// dagger/002 - create module for presenter (used in Subcomponent)
 @Module
-class AppModule() {
-
-    // // context takes from our custom builder
+class MainModule {
     @Provides
-    fun providePreferences(context: Context): SharedPreferences {
-        return context.getSharedPreferences("pref", MODE_PRIVATE)
-    }
-
-    @Provides
-    fun provideResources(context: Context): Resources {
-        return context.resources
+    fun provideMainActivityPresenter(databaseHelper: DatabaseHelper, networkUtils: NetworkUtils): MainActivityPresenter {
+        return MainActivityPresenter(databaseHelper, networkUtils)
     }
 }
 
