@@ -1,21 +1,18 @@
 package com.rustamsaga.dagger.di
 
 
-import android.content.Context
-import android.content.SharedPreferences
-import android.content.res.Resources
-import com.rustamsaga.dagger.DatabaseHelper
-import com.rustamsaga.dagger.NetworkUtils
-import dagger.BindsInstance
+import com.rustamsaga.dagger.InjectActivity
 import dagger.Component
 
-// dagger/003 - create main component, and create a function getter for subcomponent
-@Component
+@Component(modules = [InjectModule::class])
 interface AppComponent {
+    // ...
 
-    fun getNetworkUtils(): NetworkUtils
-    fun getDatabaseHelper(): DatabaseHelper
+// dagger-getMethod/004 - create main component, and a function getter for subcomponent.builder or subcomponent.factory
+    fun getBuilderComponentBuilder(): BuilderComponent.Builder
+    fun getFactoryComponentFactory(): FactoryComponent.Factory
 
-    fun getSecondComponent(): SecondComponent
+    // dagger-injectMethod/004 - or use this way
+    fun injectInjectActivity(injectActivity: InjectActivity)
 }
 

@@ -1,11 +1,13 @@
 package com.rustamsaga.dagger
 
+import android.app.Activity
 import javax.inject.Inject
 
-// dagger/001 - create some objects
+// dagger-GetMethod/001 - create some objects (add object activity in constructor)
 class MainActivityPresenter(
     val databaseHelper: DatabaseHelper,
-    val networkUtils: NetworkUtils
+    val networkUtils: NetworkUtils,
+    val activity: Activity
 ) {}
 
 class DatabaseHelper @Inject constructor() {
@@ -19,3 +21,10 @@ class NetworkUtils @Inject constructor() {
         return "NetworkHelper: $message"
     }
 }
+
+// dagger-InjectMethod/001 - create some objects (add object activity in constructor)
+class InjectActivityPresenter(
+    val databaseHelper: DatabaseHelper,
+    val networkUtils: NetworkUtils,
+    val activity: Activity
+)

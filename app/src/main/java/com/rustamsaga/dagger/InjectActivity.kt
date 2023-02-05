@@ -6,25 +6,27 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.rustamsaga.dagger.di.AppComponent
+import com.rustamsaga.dagger.di.InjectComponent
 import com.rustamsaga.dagger.ui.theme.DaggerTheme
+import javax.inject.Inject
 
-class MainActivity : ComponentActivity() {
+class InjectActivity : ComponentActivity() {
 
-    lateinit var appComponent: AppComponent
+    // dagger-injectMethod/005 - using inject method
+
+    @Inject
+    lateinit var injectComponentFactory: InjectComponent.Factory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // dagger-getMethod/005 - create builderComponent with builder
-        appComponent = (application as App).appComponent
-        val builderComponent = appComponent.getBuilderComponentBuilder()
-            .activity(this)
-            .build()
-
-        // or dagger-getMethod/005 - create factoryComponent with factory
-        val factoryComponent = appComponent.getFactoryComponentFactory().create(this)
+        (application as App).appComponent.injectInjectActivity(this)
+        val injectComponent = injectComponentFactory.create(this)
 
         setContent {
             DaggerTheme {
@@ -32,9 +34,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
-                ) {
-
-                }
+                ) {}
             }
         }
     }
