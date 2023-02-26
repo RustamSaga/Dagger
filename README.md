@@ -85,4 +85,16 @@ class App: Application() {
     }
 
 ```
+## Notes
+There is no universal way how to organize components.
 
+One uses one basic AppComponent, and for each Activity creates its own subcomponent.
+Someone uses one universal subcomponent for all Activity. Someone doesn’t use subcomponents at all,
+but builds everything on dependencies.
+
+Official documentation recommends the use of subcomponents rather than dependencies.
+In the case of subcomponents, the dagger knows better which objects to create and which not.
+This will allow it to reduce the amount of code generated.
+
+But someone write - that the subcomponents are bad for a multimodular application because the 
+subcomponent knows about all component modules, prevents the modules from being properly isolated from each other...
