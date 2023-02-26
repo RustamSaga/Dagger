@@ -1,18 +1,18 @@
 package com.rustamsaga.dagger.di
 
 
-import com.rustamsaga.dagger.InjectActivity
+import com.rustamsaga.dagger.DatabaseHelper
+import com.rustamsaga.dagger.NetworkUtils
 import dagger.Component
 
-@Component(modules = [InjectModule::class])
+// dagger-003/ create common appComponent
+@Component(modules = [DependenciesModule::class])
 interface AppComponent {
     // ...
 
-// dagger-getMethod/004 - create main component, and a function getter for subcomponent.builder or subcomponent.factory
-    fun getBuilderComponentBuilder(): BuilderComponent.Builder
-    fun getFactoryComponentFactory(): FactoryComponent.Factory
+    // must have for create another object in another components
+    fun getDatabaseHelper(): DatabaseHelper
+    fun getNetworkUtils(): NetworkUtils
 
-    // dagger-injectMethod/004 - or use this way
-    fun injectInjectActivity(injectActivity: InjectActivity)
 }
 

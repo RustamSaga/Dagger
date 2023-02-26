@@ -1,40 +1,32 @@
 package com.rustamsaga.dagger.di
 
-import android.app.Activity
-import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
-import android.content.res.Resources
 import com.rustamsaga.dagger.DatabaseHelper
-import com.rustamsaga.dagger.InjectActivityPresenter
 import com.rustamsaga.dagger.MainActivityPresenter
 import com.rustamsaga.dagger.NetworkUtils
 import dagger.Module
 import dagger.Provides
 
-// dagger-getMethod/002 - create module for presenter (used in Subcomponent)
+
+// dagger-001/ dependencies module for appComponent. MainComponent does not know about this module
+@Module
+class DependenciesModule {
+
+    @Provides
+    fun provideDatabaseHelper(): DatabaseHelper = DatabaseHelper()
+
+    @Provides
+    fun provideNetworkUtils(): NetworkUtils = NetworkUtils()
+}
+
+// dagger-002/ this module for MainComponent. AppComponent does not know about this module
 @Module
 class MainModule {
     @Provides
     fun provideMainActivityPresenter(
         databaseHelper: DatabaseHelper,
-        networkUtils: NetworkUtils,
-        activity: Activity
+        networkUtils: NetworkUtils
     ): MainActivityPresenter {
-        return MainActivityPresenter(databaseHelper, networkUtils, activity)
+        return MainActivityPresenter(databaseHelper, networkUtils)
     }
 }
 
-// dagger-injectMethod/002 - create module for presenter (used in Subcomponent)
-@Module(subcomponents = [InjectComponent::class])
-class InjectModule {
-
-    @Provides
-    fun provideInjectActivityPresenter(
-        databaseHelper: DatabaseHelper,
-        networkUtils: NetworkUtils,
-        activity: Activity
-    ): InjectActivityPresenter {
-        return InjectActivityPresenter(databaseHelper, networkUtils, activity)
-    }
-}

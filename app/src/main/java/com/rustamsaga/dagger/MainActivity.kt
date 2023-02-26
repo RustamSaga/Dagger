@@ -8,23 +8,20 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
 import com.rustamsaga.dagger.di.AppComponent
+import com.rustamsaga.dagger.di.BuilderComponent
 import com.rustamsaga.dagger.ui.theme.DaggerTheme
 
 class MainActivity : ComponentActivity() {
 
-    lateinit var appComponent: AppComponent
+    // dagger-006/ using a component and getting a presenter
+    lateinit var builderComponent: BuilderComponent
+    lateinit var presenter: MainActivityPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // dagger-getMethod/005 - create builderComponent with builder
-        appComponent = (application as App).appComponent
-        val builderComponent = appComponent.getBuilderComponentBuilder()
-            .activity(this)
-            .build()
-
-        // or dagger-getMethod/005 - create factoryComponent with factory
-        val factoryComponent = appComponent.getFactoryComponentFactory().create(this)
+        builderComponent = (application as App).builderComponent
+        presenter = builderComponent.getMainActivityPresenter()
 
         setContent {
             DaggerTheme {

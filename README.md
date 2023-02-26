@@ -1,243 +1,88 @@
-# Subcomponent. Transfer of objects
-#### Second advantage - more flexible transfer of objects
+# Components. Dependencies
 
 For ease of use, I added TODO filter. To follow links you need to create filters - click to `TODO`
 in bottom panel -> icon
 filter ![image](https://user-images.githubusercontent.com/121166010/214673108-b36497d7-85a4-4086-8beb-c6e8dbe297ad.png)
 -> Edit Filters -> add pattern `\bdagger\b.*` and filter `dagger`
 
-## Builder (with getter method)
+### Dagger gives us another way of interacting between components.
+In this case, we create two common components and indicate that one is dependent on the other.
 
-#### Objects
+### We create two normal components, each of them has different modules, but one delivers dependencies to another.
+
+#### appComponent for deliver dependencies
 ```kotlin
-class MainActivityPresenter(
-    val databaseHelper: DatabaseHelper,
-    val networkUtils: NetworkUtils,
-    val activity: Activity
-) {}
-
-class DatabaseHelper @Inject constructor() {
-    fun showMessage(message: String): String {
-        return "DatabaseHelper: $message"
-    }
-}
-
-class NetworkUtils @Inject constructor() {
-    fun showMessage(message: String): String {
-        return "NetworkHelper: $message"
-    }
+@Component(modules = [DependenciesModule::class])
+interface AppComponent {
+    // must have for create another object in another components
+    fun getDatabaseHelper(): DatabaseHelper
+    fun getNetworkUtils(): NetworkUtils
 }
 ```
-
-#### Module
+##### appComponent's module
 ```kotlin
 @Module
-class MainModule {
+class DependenciesModule {
+
     @Provides
-    fun provideMainActivityPresenter(
-        databaseHelper: DatabaseHelper,
-        networkUtils: NetworkUtils,
-        activity: Activity
-    ): MainActivityPresenter {
-        return MainActivityPresenter(databaseHelper, networkUtils, activity)
-    }
+    fun provideDatabaseHelper(): DatabaseHelper = DatabaseHelper()
+
+    @Provides
+    fun provideNetworkUtils(): NetworkUtils = NetworkUtils()
 }
 ```
 
-#### Subcomponent
+
+#### mainComponent that needs dependencies for create presenter
 ```kotlin
-@Subcomponent(modules = [MainModule::class])
+@Component(modules = [MainModule::class], dependencies = [AppComponent::class])
 interface BuilderComponent {
-
-    @Subcomponent.Builder
-    interface Builder {
-        @BindsInstance fun activity(activity: Activity): Builder
-        fun build(): BuilderComponent
-    }
-
     fun getMainActivityPresenter(): MainActivityPresenter
 
 }
 ```
 
-#### AppComponent (main component)
-```kotlin
-@Component
-interface AppComponent {
-    // ...
-    fun getBuilderComponentBuilder(): BuilderComponent.Builder
-}
-```
-
-#### Activity
-```kotlin
-class MainActivity : ComponentActivity() {
-
-    lateinit var appComponent: AppComponent
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        appComponent = (application as App).appComponent
-        val builderComponent = appComponent.getBuilderComponentBuilder()
-            .activity(this)
-            .build()
-        //...
-    }
-}
-```
-
-## Factory (with getter method)
-
-#### Objects
-```kotlin
-class MainActivityPresenter(
-    val databaseHelper: DatabaseHelper,
-    val networkUtils: NetworkUtils,
-    val activity: Activity
-) {}
-
-class DatabaseHelper @Inject constructor() {
-    fun showMessage(message: String): String {
-        return "DatabaseHelper: $message"
-    }
-}
-
-class NetworkUtils @Inject constructor() {
-    fun showMessage(message: String): String {
-        return "NetworkHelper: $message"
-    }
-}
-```
-#### Module
+##### mainComponent's module
 ```kotlin
 @Module
 class MainModule {
     @Provides
     fun provideMainActivityPresenter(
         databaseHelper: DatabaseHelper,
-        networkUtils: NetworkUtils,
-        activity: Activity
+        networkUtils: NetworkUtils
     ): MainActivityPresenter {
-        return MainActivityPresenter(databaseHelper, networkUtils, activity)
+        return MainActivityPresenter(databaseHelper, networkUtils)
     }
 }
 ```
 
-#### Subcomponent
+#### Init builderComponent
 ```kotlin
-@Subcomponent(modules = [MainModule::class])
-interface FactoryComponent {
-
-    @Subcomponent.Factory
-    interface Factory {
-        fun create(@BindsInstance activity: Activity): FactoryComponent
-    }
-
-    fun getMainActivityPresenter(): MainActivityPresenter
-}
-```
-
-#### AppComponent (main component)
-```kotlin
-@Component
-interface AppComponent {
-    // ...
-    fun getFactoryComponentFactory(): FactoryComponent.Factory
+class App: Application() {
+    val appComponent: AppComponent = DaggerAppComponent.create()
+    
+    val builderComponent: BuilderComponent =
+        DaggerBuilderComponent
+            .builder()
+            .appComponent(appComponent)
+            .build()
 }
 ```
 
 #### Activity
 ```kotlin
-
-class MainActivity : ComponentActivity() {
-
-    lateinit var appComponent: AppComponent
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        appComponent = (application as App).appComponent
-        val factoryComponent = appComponent.getFactoryComponentFactory().create(this)
-        
-        //...
-    }
-}
-```
-
-## Inject Method
-from dagger documentation:
-Using @Module.subcomponents is better since it allows Dagger to detect if the subcomponent is ever requested.
-Installing a subcomponent via a method on the parent component is an explicit request for that component, 
-even if that method is never called. Dagger can’t detect that, and thus must generate the subcomponent 
-even if you never use it.
-
-#### Object
-```kotlin
-class InjectActivityPresenter(
-    val databaseHelper: DatabaseHelper,
-    val networkUtils: NetworkUtils,
-    val activity: Activity
-)
-
 //...
-```
-
-#### Module
-```kotlin
-@Module(subcomponents = [InjectComponent::class]) // key moment
-class InjectModule {
-
-    @Provides
-    fun provideInjectActivityPresenter(
-        databaseHelper: DatabaseHelper,
-        networkUtils: NetworkUtils,
-        activity: Activity
-    ): InjectActivityPresenter {
-        return InjectActivityPresenter(databaseHelper, networkUtils, activity)
-    }
-}
-```
-
-#### Subcomponent
-```kotlin
-@Subcomponent
-interface InjectComponent {
-
-    // you can use builder or factory
-    @Subcomponent.Factory
-    interface Factory {
-        fun create(@BindsInstance activity: Activity): InjectComponent
-    }
-
-    fun injectInjectActivity(injectActivity: InjectActivity)
-}
-```
-
-#### AppComponent (main component)
-```kotlin
-@Component(modules = [InjectModule::class]) // key moment
-interface AppComponent {
-    // ...
-    fun injectInjectActivity(injectActivity: InjectActivity)
-}
-```
-
-#### Activity
-```kotlin
-
-class InjectActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var injectComponentFactory: InjectComponent.Factory
+    lateinit var builderComponent: BuilderComponent
+    lateinit var presenter: MainActivityPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        (application as App).appComponent.injectInjectActivity(this)
-        val injectComponent = injectComponentFactory.create(this)
-        
+        builderComponent = (application as App).builderComponent
+        presenter = builderComponent.getMainActivityPresenter()
+
         //...
     }
-}
+
 ```
+
