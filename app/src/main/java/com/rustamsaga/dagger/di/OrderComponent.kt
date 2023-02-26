@@ -2,10 +2,11 @@ package com.rustamsaga.dagger.di
 
 import com.rustamsaga.dagger.MainActivityPresenter
 import dagger.Component
+import dagger.Subcomponent
 
-// dagger-004/ create another component by dependencies
-@Component(modules = [MainModule::class], dependencies = [AppComponent::class])
-interface BuilderComponent {
+// dagger-003/ create subcomponent
+@Subcomponent(modules = [PresenterModule::class])
+interface OrderComponent {
     fun getMainActivityPresenter(): MainActivityPresenter
 
 }

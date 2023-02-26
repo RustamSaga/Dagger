@@ -1,100 +1,69 @@
-# Components. Dependencies
+# Component life cycle
 
 For ease of use, I added TODO filter. To follow links you need to create filters - click to `TODO`
 in bottom panel -> icon
 filter ![image](https://user-images.githubusercontent.com/121166010/214673108-b36497d7-85a4-4086-8beb-c6e8dbe297ad.png)
 -> Edit Filters -> add pattern `\bdagger\b.*` and filter `dagger`
 
-### Dagger gives us another way of interacting between components.
-In this case, we create two common components and indicate that one is dependent on the other.
-
-### We create two normal components, each of them has different modules, but one delivers dependencies to another.
-
-#### appComponent for deliver dependencies
+### AppComponent
 ```kotlin
-@Component(modules = [DependenciesModule::class])
+@Component(modules = [AppModule::class])
 interface AppComponent {
-    // must have for create another object in another components
-    fun getDatabaseHelper(): DatabaseHelper
-    fun getNetworkUtils(): NetworkUtils
-}
-```
-##### appComponent's module
-```kotlin
-@Module
-class DependenciesModule {
+    // ...
+    fun getOrderComponent(): OrderComponent
 
-    @Provides
-    fun provideDatabaseHelper(): DatabaseHelper = DatabaseHelper()
-
-    @Provides
-    fun provideNetworkUtils(): NetworkUtils = NetworkUtils()
 }
 ```
 
-
-#### mainComponent that needs dependencies for create presenter
+### SubComponent
 ```kotlin
-@Component(modules = [MainModule::class], dependencies = [AppComponent::class])
-interface BuilderComponent {
+@Subcomponent(modules = [PresenterModule::class])
+interface OrderComponent {
     fun getMainActivityPresenter(): MainActivityPresenter
 
 }
 ```
 
-##### mainComponent's module
+### OrderActivity (second activity)
 ```kotlin
-@Module
-class MainModule {
-    @Provides
-    fun provideMainActivityPresenter(
-        databaseHelper: DatabaseHelper,
-        networkUtils: NetworkUtils
-    ): MainActivityPresenter {
-        return MainActivityPresenter(databaseHelper, networkUtils)
-    }
-}
-```
+class OrderActivity: ComponentActivity() {
 
-#### Init builderComponent
-```kotlin
-class App: Application() {
-    val appComponent: AppComponent = DaggerAppComponent.create()
-    
-    val builderComponent: BuilderComponent =
-        DaggerBuilderComponent
-            .builder()
-            .appComponent(appComponent)
-            .build()
-}
-```
-
-#### Activity
-```kotlin
-//...
-    lateinit var builderComponent: BuilderComponent
-    lateinit var presenter: MainActivityPresenter
+    lateinit var orderComponent: OrderComponent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        builderComponent = (application as App).builderComponent
-        presenter = builderComponent.getMainActivityPresenter()
-
+        orderComponent = (application as App).appComponent.getOrderComponent()
         //...
     }
-
+}
 ```
-## Notes
-There is no universal way how to organize components.
 
-One uses one basic AppComponent, and for each Activity creates its own subcomponent.
-Someone uses one universal subcomponent for all Activity. Someone doesn’t use subcomponents at all,
-but builds everything on dependencies.
+### Notes
+#### 1
+AppComponent will continue to live after the OrderActivity is closed.
+It is stored in the Application object and is not tied to life any Activity.
 
-Official documentation recommends the use of subcomponents rather than dependencies.
-In the case of subcomponents, the dagger knows better which objects to create and which not.
-This will allow it to reduce the amount of code generated.
+The next time we run the OrderActivity screen and take the AppComponent from the Application object,
+it will be exactly the same component as the last time.
 
-But someone write - that the subcomponents are bad for a multimodular application because the 
-subcomponent knows about all component modules, prevents the modules from being properly isolated from each other...
+#### 2
+Every time we call the getOrderComponent method in the component, we will receive a new 
+OrderComponent. The appComponent does not hold the link to the subcomponent 
+and does not control it. It creates it, gives it to us and forgets about it.
+
+Thus, the component’s task is only to create a subcomponent (and to give modules).
+And the life time of the subcomponent is determined by us. We store this subcomponent for as long 
+as we need, and then release it to the garbage collector to destroy it.
+
+No manual destruction of components or sub-components is performed.
+
+#### 3
+These two examples show that the life time of the subcomponent is less than that of the component. 
+During the lifetime of the appComponent (application time) passes several life cycles of 
+the subcomponent (opening/closing the screen).
+
+#### 4
+In Activity.onCreate we call the subcomponent code after calling super.onCreate. 
+But it can be done before. In Lesson 14 we consider the case of subcomponent passing
+from Activity to fragment. In this case, the subcomponent must be obtained before the super.onCreate.
+

@@ -7,9 +7,9 @@ import dagger.Module
 import dagger.Provides
 
 
-// dagger-001/ dependencies module for appComponent. MainComponent does not know about this module
+// dagger-001/ create modules for appComponent and subcomponent
 @Module
-class DependenciesModule {
+class AppModule {
 
     @Provides
     fun provideDatabaseHelper(): DatabaseHelper = DatabaseHelper()
@@ -18,9 +18,8 @@ class DependenciesModule {
     fun provideNetworkUtils(): NetworkUtils = NetworkUtils()
 }
 
-// dagger-002/ this module for MainComponent. AppComponent does not know about this module
 @Module
-class MainModule {
+class PresenterModule {
     @Provides
     fun provideMainActivityPresenter(
         databaseHelper: DatabaseHelper,

@@ -10,9 +10,15 @@ import androidx.compose.ui.Modifier
 import com.rustamsaga.dagger.di.OrderComponent
 import com.rustamsaga.dagger.ui.theme.DaggerTheme
 
-class MainActivity : ComponentActivity() {
+class OrderActivity: ComponentActivity() {
+
+    // dagger-005/ using the orderComponent
+    lateinit var orderComponent: OrderComponent
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        orderComponent = (application as App).appComponent.getOrderComponent()
 
         setContent {
             DaggerTheme {
