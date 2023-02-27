@@ -1,26 +1,36 @@
 package com.rustamsaga.dagger.di
 
-import com.rustamsaga.dagger.AppDatabaseHelperWithModule
-import com.rustamsaga.dagger.SubcomOrderRepositoryWithModule
+import android.app.Activity
+import com.rustamsaga.dagger.AppDatabase
+import com.rustamsaga.dagger.UiHelper
 import dagger.Module
 import dagger.Provides
 
-
-// dagger-003/ create modules for appComponent and subcomponent
+// dagger-003/ create module for appComponent and add @AppScope for provide method
 @Module
-class AppModule {
+class AppModule() {
     @AppScope
     @Provides
-    fun provideDatabaseHelper(): AppDatabaseHelperWithModule = AppDatabaseHelperWithModule()
+    fun provideAppDatabase(): AppDatabase = AppDatabase()
 }
 
 
+// dagger-003/ create module for orderComponent and add @OrderScope for provide method
 @Module
 class OrderModule {
+
     @OrderScope
     @Provides
-    fun provideOrderRepositoryByProvidesMethod(): SubcomOrderRepositoryWithModule {
-        return SubcomOrderRepositoryWithModule()
-    }
+    fun provideUiHelper(activity: Activity): UiHelper = UiHelper(activity)
+
 }
 
+// dagger-003/ create module for userComponent and add @UserScope for provide method
+@Module
+class UserModule {
+
+    @UserScope
+    @Provides
+    fun provideUiHelper(activity: Activity): UiHelper = UiHelper(activity)
+
+}

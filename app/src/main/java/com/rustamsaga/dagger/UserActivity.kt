@@ -6,13 +6,17 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.rustamsaga.dagger.di.OrderComponent
+import com.rustamsaga.dagger.di.UserComponent
 import com.rustamsaga.dagger.ui.theme.DaggerTheme
 
-class OrderActivity : ComponentActivity() {
+class UserActivity : ComponentActivity() {
 
-    lateinit var orderComponent: OrderComponent
+    lateinit var userComponent: UserComponent
     lateinit var appDatabase: AppDatabase
     lateinit var uiHelper: UiHelper
     lateinit var injectUiHelper: InjectUiHelper
@@ -20,15 +24,14 @@ class OrderActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // dagger-008/ init orderComponent
-        orderComponent = (application as App).appComponent
-            .getOrderComponent()
+        // dagger-008/ init userComponent
+        userComponent = (application as App).appComponent
+            .getUserComponent()
             .activity(this)
             .build()
-        appDatabase = orderComponent.getAppDatabase()
-        uiHelper = orderComponent.getUiHelper()
-        injectUiHelper = orderComponent.getInjectUiHelper()
-
+        appDatabase = userComponent.getAppDatabase()
+        uiHelper = userComponent.getUiHelper()
+        injectUiHelper = userComponent.getInjectUiHelper()
 
         setContent {
             DaggerTheme {

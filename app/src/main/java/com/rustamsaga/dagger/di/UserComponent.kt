@@ -7,18 +7,18 @@ import com.rustamsaga.dagger.UiHelper
 import dagger.BindsInstance
 import dagger.Subcomponent
 
-// dagger-005/ create OrderComponent and add two annotation - @ActivityScope and @OrderScope
+// dagger-006/ create UserComponent and add two annotation - @ActivityScope and @OrderScope
 @ActivityScope
-@OrderScope
-@Subcomponent(modules = [OrderModule::class])
-interface OrderComponent {
+@UserScope
+@Subcomponent(modules = [UserModule::class])
+interface UserComponent {
 
-    // dagger-005/ and then create custom builder for provide activity
+    // dagger-006/ and then create custom builder for provide activity
     @Subcomponent.Builder
-    interface OrderComponentBuilder {
+    interface UserComponentBuilder {
         @BindsInstance
-        fun activity(activity: Activity): OrderComponentBuilder
-        fun build(): OrderComponent
+        fun activity(activity: Activity): UserComponentBuilder
+        fun build(): UserComponent
     }
 
     fun getAppDatabase(): AppDatabase

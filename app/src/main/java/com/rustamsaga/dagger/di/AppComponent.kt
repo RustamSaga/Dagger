@@ -1,20 +1,19 @@
 package com.rustamsaga.dagger.di
 
 
-import com.rustamsaga.dagger.AppDatabaseHelperWithModule
-import com.rustamsaga.dagger.AppNetworkUtilsWithoutModule
+import android.app.Activity
+import dagger.BindsInstance
 import dagger.Component
 
-// dagger-004/ create appComponent and add @AppScope
+// dagger-004/ create appComponent and add @AppScope and get methods for subcomponents by builder
 @AppScope
 @Component(modules = [AppModule::class])
 interface AppComponent {
     // ...
-    fun getOrderComponent(): OrderComponent
 
-    fun getAppDatabaseHelper(): AppDatabaseHelperWithModule
+    fun getOrderComponent(): OrderComponent.OrderComponentBuilder
 
-    fun getAppNetworkUtils(): AppNetworkUtilsWithoutModule
+    fun getUserComponent(): UserComponent.UserComponentBuilder
 
 }
 
