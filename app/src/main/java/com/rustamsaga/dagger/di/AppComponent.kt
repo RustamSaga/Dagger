@@ -1,19 +1,11 @@
 package com.rustamsaga.dagger.di
 
-
-import android.app.Activity
-import dagger.BindsInstance
+import com.rustamsaga.dagger.MainActivityPresenter
 import dagger.Component
 
-// dagger-004/ create appComponent and add @AppScope and get methods for subcomponents by builder
-@AppScope
-@Component(modules = [AppModule::class])
+// dagger-004/ create component and getter method
+@Component
 interface AppComponent {
-    // ...
 
-    fun getOrderComponent(): OrderComponent.OrderComponentBuilder
-
-    fun getUserComponent(): UserComponent.UserComponentBuilder
-
+    fun getMainActivityPresenter(): MainActivityPresenter
 }
-

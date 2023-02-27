@@ -1,26 +1,44 @@
 package com.rustamsaga.dagger
 
-import android.app.Activity
-import com.rustamsaga.dagger.di.ActivityScope
-import com.rustamsaga.dagger.di.AppScope
-import com.rustamsaga.dagger.di.OrderScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import javax.inject.Inject
 
-
-// dagger-002/ create object for provide in module. Does not require annotation
-class UiHelper(activity: Activity){
-    //...
+// dagger-001/ create some objects
+class NetworkUtils @Inject constructor() {
+    override fun toString(): String {
+        return "NetworkUtils"
+    }
 }
 
-// dagger-002/ create object. This is global for any subcomponent
-@AppScope // this class is a shared object for all subcomponents
-class AppDatabase() {
-    //...
-}
+// dagger-002/ create object with @AssistedInject - this object create when we need
+data class ServiceApi @AssistedInject constructor(
+    val networkUtils: NetworkUtils,
+    @Assisted val id: Int,
+    @Assisted("host") val host: String,  // Assisted have param, because we have two value String
+    @Assisted("port") val port: String
+) {}
 
-// dagger-002/ create object that will be used without the module. And will be common to subcomponents
-@ActivityScope
-class InjectUiHelper @Inject constructor(activity: Activity){
-    //...
-}
+// dagger-003/ create a class where serviceApi is required, but we use serviceApiFactory
+data class MainActivityPresenter @Inject constructor(
+    private val serviceApiFactory: ServiceApiFactory){
 
+    @AssistedFactory
+    interface ServiceApiFactory {
+        fun create(
+            id: Int,
+            @Assisted("host") host: String,
+            @Assisted("port") port: String = "80"
+        ): ServiceApi
+    }
+
+    // Here we create serviceApi
+    fun onCreate(id: Int, host: String, port: String = "80"): ServiceApi {
+        return serviceApiFactory.create(id, host, port)
+    }
+
+    // Or like this
+    val serviceApi = serviceApiFactory.create(1, "test.drive.inside")
+
+}
