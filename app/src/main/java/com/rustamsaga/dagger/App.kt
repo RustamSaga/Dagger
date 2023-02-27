@@ -4,7 +4,7 @@ import android.app.Application
 import com.rustamsaga.dagger.di.AppComponent
 import com.rustamsaga.dagger.di.DaggerAppComponent
 
-// dagger-004/ init appComponent
+// dagger-006/ init appComponent
 class App: Application() {
     val appComponent: AppComponent = DaggerAppComponent.create()
 

@@ -1,15 +1,20 @@
 package com.rustamsaga.dagger.di
 
 
-import com.rustamsaga.dagger.DatabaseHelper
-import com.rustamsaga.dagger.NetworkUtils
+import com.rustamsaga.dagger.AppDatabaseHelperWithModule
+import com.rustamsaga.dagger.AppNetworkUtilsWithoutModule
 import dagger.Component
 
-// dagger-002/ create common appComponent
+// dagger-004/ create appComponent and add @AppScope
+@AppScope
 @Component(modules = [AppModule::class])
 interface AppComponent {
     // ...
     fun getOrderComponent(): OrderComponent
+
+    fun getAppDatabaseHelper(): AppDatabaseHelperWithModule
+
+    fun getAppNetworkUtils(): AppNetworkUtilsWithoutModule
 
 }
 

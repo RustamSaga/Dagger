@@ -1,28 +1,31 @@
 package com.rustamsaga.dagger
 
-import android.app.Activity
+import com.rustamsaga.dagger.di.AppScope
+import com.rustamsaga.dagger.di.OrderScope
 import javax.inject.Inject
 
-class MainActivityPresenter(
-    val databaseHelper: DatabaseHelper,
-    val networkUtils: NetworkUtils
-) {}
-
-class DatabaseHelper {
+// dagger-002 - create singleton objects for example two singletons appComponent and two subcomponent
+@AppScope
+class AppDatabaseHelperWithModule {
     fun showMessage(message: String): String {
         return "DatabaseHelper: $message"
     }
 }
 
-class NetworkUtils {
+@AppScope
+class AppNetworkUtilsWithoutModule @Inject constructor(){
     fun showMessage(message: String): String {
         return "NetworkHelper: $message"
     }
 }
 
 
-class InjectActivityPresenter(
-    val databaseHelper: DatabaseHelper,
-    val networkUtils: NetworkUtils,
-    val activity: Activity
-)
+@OrderScope
+class SubcomOrderRepositoryWithoutModule @Inject constructor(){
+    //...
+}
+
+@OrderScope
+class SubcomOrderRepositoryWithModule {
+    //...
+}

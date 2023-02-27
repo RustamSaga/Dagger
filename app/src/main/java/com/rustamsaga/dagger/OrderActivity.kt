@@ -12,13 +12,22 @@ import com.rustamsaga.dagger.ui.theme.DaggerTheme
 
 class OrderActivity: ComponentActivity() {
 
-    // dagger-005/ using the orderComponent
+    // dagger-007/ getting singleton objects
     lateinit var orderComponent: OrderComponent
+    lateinit var orderRepository: SubcomOrderRepositoryWithoutModule
+    lateinit var orderRepositoryWithProvidesMethod: SubcomOrderRepositoryWithModule
+    lateinit var appNetworkUtilsWithInjectAnnotation: AppNetworkUtilsWithoutModule
+    lateinit var appDatabaseHelperWithProvidesMethod: AppDatabaseHelperWithModule
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         orderComponent = (application as App).appComponent.getOrderComponent()
+        orderRepository = orderComponent.getOrderRepository()
+        orderRepositoryWithProvidesMethod = orderComponent.getOrderRepositoryByProvidesMethod()
+        appNetworkUtilsWithInjectAnnotation = orderComponent.getAppNetworkUtils()
+        appDatabaseHelperWithProvidesMethod = orderComponent.getAppDatabaseHelper()
+
 
         setContent {
             DaggerTheme {

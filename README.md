@@ -1,69 +1,184 @@
-# Component life cycle
+# Scope or singleton
 
 For ease of use, I added TODO filter. To follow links you need to create filters - click to `TODO`
 in bottom panel -> icon
 filter ![image](https://user-images.githubusercontent.com/121166010/214673108-b36497d7-85a4-4086-8beb-c6e8dbe297ad.png)
 -> Edit Filters -> add pattern `\bdagger\b.*` and filter `dagger`
 
-### AppComponent
+## We have two ways to implement a singleton objects (two for subcomponent and two for appComponent)
+_but first we need create two another annotations_
+
 ```kotlin
-@Component(modules = [AppModule::class])
+@Scope
+@Retention(AnnotationRetention.RUNTIME)
+annotation class OrderScope // for subcomponent - objects marked with this annotation will have the same lifecycle as subcomponent
+
+@Scope
+@Retention(AnnotationRetention.RUNTIME)
+annotation class AppScope  // for appComponent - objects marked with this annotation will have the same lifecycle as AppComponent
+
+```
+
+### first - with inject annotation
+#### create singleton objects
+```kotlin
+@AppScope
+class NetworkUtils @Inject constructor(){
+    fun showMessage(message: String): String {
+        return "NetworkHelper: $message"
+    }
+}
+```
+
+```kotlin
+@OrderScope
+class OrderRepository @Inject constructor(){
+    //...
+}
+```
+
+#### add getting method in appComponent
+```kotlin
+@AppScope
+@Component
 interface AppComponent {
-    // ...
     fun getOrderComponent(): OrderComponent
 
+    fun getNetworkUtils(): NetworkUtils
+
 }
 ```
-
-### SubComponent
+#### add getting method in subcomponent
 ```kotlin
-@Subcomponent(modules = [PresenterModule::class])
+@OrderScope
+@Subcomponent
 interface OrderComponent {
-    fun getMainActivityPresenter(): MainActivityPresenter
+    fun getOrderRepository(): OrderRepository
+    
+    fun getNetworkUtils(): NetworkUtils
 
 }
 ```
 
-### OrderActivity (second activity)
+#### Application
+```kotlin
+class App: Application() {
+    val appComponent: AppComponent = DaggerAppComponent.create()
+
+}
+```
+
+#### OrderActivity (second activity)
 ```kotlin
 class OrderActivity: ComponentActivity() {
 
     lateinit var orderComponent: OrderComponent
+    lateinit var orderRepository: OrderRepository
+    lateinit var networkUtils: NetworkUtils
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         orderComponent = (application as App).appComponent.getOrderComponent()
+        orderRepository = orderComponent.getOrderRepository()
+        NetworkUtils = orderComponent.getNetworkUtils()
+
         //...
     }
 }
 ```
 
-### Notes
-#### 1
-AppComponent will continue to live after the OrderActivity is closed.
-It is stored in the Application object and is not tied to life any Activity.
+### second - with inject annotation
 
-The next time we run the OrderActivity screen and take the AppComponent from the Application object,
-it will be exactly the same component as the last time.
+#### create singleton objects
+```kotlin
+@AppScope
+class NetworkUtils {
+    fun showMessage(message: String): String {
+        return "NetworkHelper: $message"
+    }
+}
+```
 
-#### 2
-Every time we call the getOrderComponent method in the component, we will receive a new 
-OrderComponent. The appComponent does not hold the link to the subcomponent 
-and does not control it. It creates it, gives it to us and forgets about it.
+```kotlin
+@OrderScope
+class OrderRepository {
+    //...
+}
+```
 
-Thus, the component’s task is only to create a subcomponent (and to give modules).
-And the life time of the subcomponent is determined by us. We store this subcomponent for as long 
-as we need, and then release it to the garbage collector to destroy it.
+#### create modules 
+`AppComponent module`
+```kotlin
+@Module
+class AppModule {
+    @AppScope
+    @Provides
+    fun provideDatabaseHelper(): DatabaseHelper = DatabaseHelper()
+}
+```
+`Subcomponent module`
+```kotlin
+@Module
+class OrderModule {
+    @OrderScope
+    @Provides
+    fun provideOrderRepository(): OrderRepository {
+        return OrderRepository()
+    }
+}
+```
 
-No manual destruction of components or sub-components is performed.
+#### create appComponent
+```kotlin
+@AppScope
+@Component(modules = [AppModule::class])
+interface AppComponent {
+    // ...
+    fun getOrderComponent(): OrderComponent
 
-#### 3
-These two examples show that the life time of the subcomponent is less than that of the component. 
-During the lifetime of the appComponent (application time) passes several life cycles of 
-the subcomponent (opening/closing the screen).
+    fun getDatabaseHelper(): DatabaseHelper
 
-#### 4
-In Activity.onCreate we call the subcomponent code after calling super.onCreate. 
-But it can be done before. In Lesson 14 we consider the case of subcomponent passing
-from Activity to fragment. In this case, the subcomponent must be obtained before the super.onCreate.
+}
+```
 
+#### create subcomponent
+```kotlin
+@OrderScope
+@Subcomponent(modules = [OrderModule::class])
+interface OrderComponent {
+    fun getOrderRepository(): SubcomOrderRepository
+
+    fun getDatabaseHelper(): DatabaseHelper
+
+}
+```
+
+#### application
+```kotlin
+class App: Application() {
+    val appComponent: AppComponent = DaggerAppComponent.create()
+
+}
+```
+
+#### OrderActivity (second screen)
+```kotlin
+class OrderActivity: ComponentActivity() {
+
+    lateinit var orderComponent: OrderComponent
+    lateinit var orderRepository: OrderRepository
+    lateinit var databaseHelper: DatabaseHelper
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        orderComponent = (application as App).appComponent.getOrderComponent()
+        orderRepository = orderComponent.getOrderRepository()
+        databaseHelper = orderComponent.getDatabaseHelper()
+        //...
+    }
+}
+
+
+```
