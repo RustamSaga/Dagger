@@ -1,11 +1,15 @@
 package com.rustamsaga.dagger.di
 
-import com.rustamsaga.dagger.MainActivityPresenter
+
+import com.rustamsaga.dagger.ViewModelFactory
 import dagger.Component
 
 // dagger-004/ create component and getter method
-@Component
+@Component(modules = [ViewModelModule::class])
 interface AppComponent {
 
-    fun getMainActivityPresenter(): MainActivityPresenter
+    fun getViewModelFactory(): ViewModelFactory
+    fun loginComponent(): LoginComponent
+
+
 }

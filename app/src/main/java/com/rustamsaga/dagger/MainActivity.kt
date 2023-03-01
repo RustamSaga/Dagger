@@ -7,11 +7,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
+import com.rustamsaga.dagger.di.AppComponent
+import com.rustamsaga.dagger.di.LoginComponent
 import com.rustamsaga.dagger.ui.theme.DaggerTheme
 
 class MainActivity : ComponentActivity() {
+
+    lateinit var appComponent: AppComponent
+    lateinit var loginComponent: LoginComponent
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        appComponent = (application as App).appComponent
+        loginComponent = appComponent.loginComponent()
 
         setContent {
             DaggerTheme {
