@@ -1,11 +1,29 @@
 package com.rustamsaga.dagger
 
 import android.app.Application
-import com.rustamsaga.dagger.di.AppComponent
-import com.rustamsaga.dagger.di.DaggerAppComponent
+import android.util.Log
+import com.rustamsaga.dagger.di.DaggerHiltAppComponent
+import javax.inject.Inject
 
 
-class App: Application() {
+class App: HiltApp() {
 
-    val appComponent: AppComponent = DaggerAppComponent.create()
+    @Inject
+    lateinit var databaseHelper: DatabaseHelper
+
+    override fun onCreate() {
+        super.onCreate() // run inject
+        Log.d("HiltApp", "databaseHelper = $databaseHelper")
+    }
+
+}
+
+open class HiltApp: Application() {
+
+    val appComponent = DaggerHiltAppComponent.create()
+
+    override fun onCreate() {
+        super.onCreate()
+        appComponent.injectApp(this as App)
+    }
 }
