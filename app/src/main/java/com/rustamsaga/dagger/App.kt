@@ -10,10 +10,10 @@ import javax.inject.Inject
 class App: Application() {
 
     @Inject
-    lateinit var databaseHelper: DatabaseHelper
+    lateinit var networkUtils: NetworkUtils
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("App", "database = $databaseHelper")
+        Log.d("AppHilt", "networkUtils = $networkUtils")
     }
 }

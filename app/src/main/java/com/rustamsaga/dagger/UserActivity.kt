@@ -20,12 +20,26 @@ import javax.inject.Inject
 class UserActivity : ComponentActivity() {
 
     @Inject
-    lateinit var repository: UserRepository
+    lateinit var repository: Repository
+
+    @Inject
+    lateinit var room: Room
+
+    @Inject
+    lateinit var databaseHelper: DatabaseHelper
+
+    @Inject
+    lateinit var networkUtils: NetworkUtils
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.d("UserActivity", "repository = $repository")
+        Log.d("UserActivity","Singleton repository = $repository")
+        Log.d("UserActivity", "Singleton room = $room")
+        Log.d("UserActivity", "databaseHelper = $databaseHelper")
+        Log.d("UserActivity", "networkUtils = $networkUtils")
+
+
 
         setContent {
             DaggerTheme {

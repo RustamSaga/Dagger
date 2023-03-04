@@ -17,15 +17,27 @@ import javax.inject.Inject
 
 // dagger-006/ add annotation for activity
 @AndroidEntryPoint
-class OrderActivity : ComponentActivity() {
+class OrderActivity @Inject constructor() : ComponentActivity(){
 
     @Inject
-    lateinit var repository: OrderRepository
+    lateinit var repository: Repository
+
+    @Inject
+    lateinit var room: Room
+
+    @Inject
+    lateinit var databaseHelper: DatabaseHelper
+
+    @Inject
+    lateinit var networkUtils: NetworkUtils
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.d("OrderActivity", "repository = $repository")
+        Log.d("OrderActivity", "Singleton repository = $repository")
+        Log.d("OrderActivity", "Singleton room = $room")
+        Log.d("OrderActivity", "By module databaseHelper = $databaseHelper")
+        Log.d("OrderActivity", "By module networkUtils = $networkUtils")
 
         setContent {
             DaggerTheme {
