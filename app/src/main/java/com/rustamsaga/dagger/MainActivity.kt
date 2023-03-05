@@ -18,6 +18,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rustamsaga.dagger.ui.theme.DaggerTheme
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.scopes.ServiceScoped
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -41,16 +43,7 @@ class MainActivity : ComponentActivity() {
                         verticalArrangement = Arrangement.SpaceAround,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Button(onClick = {
-                            mContext.startActivity(Intent(mContext, OrderActivity::class.java))
-                        }
-                        ) { Text(text = "OrderActivity") }
-                        Button(onClick = {
-                            mContext.startActivity(Intent(mContext, UserActivity::class.java))
-                        }
-                        ) {
-                            Text(text = "UserActivity")
-                        }
+
                     }
 
 
