@@ -2,6 +2,7 @@ package com.rustamsaga.dagger
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -16,7 +17,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rustamsaga.dagger.di.DatabaseEntryPoint
 import com.rustamsaga.dagger.ui.theme.DaggerTheme
+import dagger.hilt.EntryPoint
+import dagger.hilt.EntryPoints
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.android.scopes.ServiceScoped
@@ -26,6 +30,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val entryPoint = EntryPoints.get(this, DatabaseEntryPoint::class.java)
+        val databaseHelper = entryPoint.getDatabaseHelper()
+
+        Log.d("mainActivity", "databaseHelper = $databaseHelper")
+
         setContent {
             DaggerTheme {
                 // A surface container using the 'background' color from the theme
